@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
+import { Env } from "./env.js";
 
 /**
  * Singleton Logger class using Winston for console and file logging.
@@ -14,7 +15,7 @@ export class Logger {
   #logger;
 
   /** @type {string} */
-  #logsDir = path.resolve("logs");
+  #logsDir = path.resolve(process.cwd(), "logs");
 
   /** @type {Object.<string, string>} */
   #customColors = {
@@ -55,14 +56,14 @@ export class Logger {
           ),
         }),
 
-        ...(process.env.NODE_ENV === "production"
+        ...(Env.get("NODE_ENV") === "production"
           ? [
               new DailyRotateFile({
                 filename: path.join(this.#logsDir, "site-%DATE%.log"),
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 maxSize: "20m", // Winston Daily Rotate accepts '20m' as 20MB
-                maxFiles: 14,
+                maxFiles: "14d",
                 level: "info",
               }),
             ]
