@@ -21,6 +21,15 @@ function main() {
       }
     });
 
+    client.on("messageCreate", async (msg) => {
+      if (
+        msg.channelId === CHANNEL_ID &&
+        msg.content?.toLowerCase()?.trim() === "ping"
+      ) {
+        await msg.reply("pong");
+      }
+    });
+
     client.on("guildMemberAdd", async (member) => {
       try {
         if (!channel) {
