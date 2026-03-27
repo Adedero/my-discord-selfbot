@@ -1,49 +1,25 @@
 import { Client, Channel } from "djs-selfbot-v13";
-import logger from "./lib/logger.js";
-import { Env } from "./lib/env.js";
+import logger from "./utils/logger.js";
+import { Env } from "./utils/env.js";
+import { createClient } from "./utils/client.js";
 
 function main() {
+  const bots = [
+    {
+      botName: "Chike's Bot",
+      token: Env.get("CHIKE_DISCORD_TOKEN"),
+      alertChannelId: Env.get("CHIKE_ALERT_CHANNEL_ID"),
+    },
+    {
+      botName: "Investor's Bot",
+      token: Env.get("INVESTOR_DISCORD_TOKEN"),
+      alertChannelId: Env.get("INVESTOR_ALERT_CHANNEL_ID"),
+    },
+  ];
   try {
-    const TOKEN = Env.get("DISCORD_TOKEN");
-    const CHANNEL_ID = Env.get("ALERT_CHANNEL_ID");
-    /**
-     * @type {Channel|null}
-     */
-    let channel = null;
-
-    const client = new Client();
-
-    client.on("ready", async () => {
-      logger.info("Bot is online");
-      channel = client.channels.cache.get(CHANNEL_ID);
-      if (channel) {
-        await channel.send("Bot is online");
-      }
-    });
-
-    client.on("messageCreate", async (msg) => {
-      if (
-        msg.channelId === CHANNEL_ID &&
-        msg.content?.toLowerCase()?.trim() === "ping"
-      ) {
-        await msg.reply("pong");
-      }
-    });
-
-    client.on("guildMemberAdd", async (member) => {
-      try {
-        if (!channel) {
-          logger.error("Alert Channel not found");
-          return;
-        }
-        const message = `${member.user.tag} joined ${member.guild.name}`;
-        await channel.send(message);
-      } catch (error) {
-        logger.error(`Error sending join alert: ${error}`);
-      }
-    });
-
-    client.login(TOKEN);
+    for (const bot of bots) {
+      createClient(bot);
+    }
   } catch (error) {
     logger.error(`Error in main: ${error}`);
   }
